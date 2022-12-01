@@ -5,7 +5,7 @@ import java.util.*;
 
 public class MonthlyReport {
 
-    HashMap<String, ArrayList<String[]>> monthlyReportList = new HashMap<>();
+    HashMap<String, ArrayList<MonthlyRecord>> monthlyReportList = new HashMap<>();
     String[] monthsNames = {"Январь", "Февраль", "Март", "Апрель",
             "Май", "Июнь", "Июль", "Август",
             "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"};
@@ -20,49 +20,60 @@ public class MonthlyReport {
     }
 
     public MonthlyReport() {
-        for (int i = 1; i < 4; i++) { // Не совсем понимаю, как считать неизвестное количество файлов
+        for (int i = 1; i < 4; i++) {
 
             ArrayList<String> reportList;
             String path = "./resources/m.20210" + i + ".csv";
             reportList = (ArrayList<String>) readFileContents(path);
-            ArrayList<String[]> arrayList = new ArrayList<>();
+            ArrayList<MonthlyRecord> arrayList = new ArrayList<>();
 
-            for (String list : reportList) {
-                arrayList.add(list.split(","));
+            for (int j = 1; j < reportList.size(); j++) {
+                String[] report = reportList.get(j).split(",");
+                MonthlyRecord record = new MonthlyRecord(report);
+                arrayList.add(record);
             }
             monthlyReportList.put("m.20210" + i, arrayList);
         }
-        System.out.println("Месячные отчеты успешно считаны");
     }
 
-    void monthlyReportWriter() {
-        for (int i = 1; i < monthlyReportList.size() + 1; i++) {
-            System.out.println("Отчет за: " + monthsNames[i - 1]);
+    String[] monthlyMaxExpense(int i) {
 
             int maxExpense = 0;
             String maxExpenseName = "";
 
-            int maxProfit = 0;
-            String maxProfitName = "";
+            for (int j = 0; j < (monthlyReportList.get("m.20210" + (i + 1))).size(); j++) {
 
-            for (int j = 1; j < (monthlyReportList.get("m.20210" + i)).size(); j++) {
+                MonthlyRecord month = monthlyReportList.get("m.20210" + (i + 1)).get(j);
 
-                String[] monthArray = monthlyReportList.get("m.20210" + i).get(j);
-
-                if (Boolean.parseBoolean(monthArray[1]) && Integer.parseInt(monthArray[2]) * Integer.parseInt(monthArray[3]) > maxExpense) {
-                    maxExpense = Integer.parseInt(monthArray[2]) * Integer.parseInt(monthArray[3]);
-                    maxExpenseName = monthArray[0];
-                } else if (!(Boolean.parseBoolean(monthArray[1])) && Integer.parseInt(monthArray[2]) * Integer.parseInt(monthArray[3]) > maxProfit) {
-                    maxProfit = Integer.parseInt(monthArray[2]) * Integer.parseInt(monthArray[3]);
-                    maxProfitName = monthArray[0];
+                if (month.isExpense && month.amount > maxExpense) {
+                    maxExpense = month.amount;
+                    maxExpenseName = month.itemName;
                 }
             }
-            System.out.println("Самый прибыльный товар: " + maxProfitName + ". Всего заработано: " + maxProfit);
-            System.out.println("Самая большая трата в размере: " + maxExpense + " была совершена за: " + maxExpenseName);
-            System.out.println();
-        }
+            String[] expense = {maxExpenseName, Integer.toString(maxExpense)};
+            return expense;
     }
 
+    String[] monthlyMaxProfit(int i) {
+
+
+        int maxProfit = 0;
+        String maxProfitName = "";
+
+        for (int j = 0; j < (monthlyReportList.get("m.20210" + (i + 1))).size(); j++) {
+
+            MonthlyRecord month = monthlyReportList.get("m.20210" + (i + 1)).get(j);
+
+            if (!(month.isExpense) && month.amount > maxProfit) {
+                maxProfit = month.amount;
+                maxProfitName = month.itemName;
+            }
+        }
+        String[] profit = {maxProfitName, Integer.toString(maxProfit)};
+
+        return profit;
+
+    }
 
 }
 

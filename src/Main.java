@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class Main {
@@ -21,35 +22,68 @@ public class Main {
                 case 1 :
                     monthlyReport = new MonthlyReport();
                     isMonthlyReportInit = true;
+                    System.out.println("Месячные отчеты успешно считаны");
                     break;
+
                 case 2 :
                     yearlyReport = new YearlyReport();
                     isYearlyReportInit = true;
+                    System.out.println("Годовой отчет успешно считан");
                     break;
+
                 case 3 :
                     if (isMonthlyReportInit && isYearlyReportInit) {
-                        ComparisonOfReports.reportReconciliation(yearlyReport, monthlyReport);
+                        ArrayList<Boolean> monthReconciliation = ComparisonOfReports.reportReconciliation(yearlyReport, monthlyReport);
+
+                        for (int i = 0; i < monthlyReport.monthlyReportList.size(); i++) {
+                            if (!monthReconciliation.get(i)) {
+                                System.out.println("Несоответствие данных в " + monthlyReport.monthsNames[i]);
+                            }
+                        }
+                        System.out.println("Сверка завершена");
                     } else {
                         System.out.println("Сначала считайте месячные и годовой отчет");
                     }
                     break;
+
                 case 4 :
                     if (isMonthlyReportInit) {
-                        monthlyReport.monthlyReportWriter();
+                        for (int i = 0; i < monthlyReport.monthlyReportList.size(); i++) {
+
+                            System.out.println("Отчет за: " + monthlyReport.monthsNames[i]);
+                            System.out.println("Самый прибыльный товар: " + monthlyReport.monthlyMaxProfit(i)[0] +
+                                    ". Всего заработано: " + monthlyReport.monthlyMaxProfit(i)[1]);
+
+                            System.out.println("Самая большая трата в размере: " + monthlyReport.monthlyMaxExpense(i)[1] +
+                                    " была совершена за: " + monthlyReport.monthlyMaxExpense(i)[0]);
+
+                            System.out.println();
+
+                        }
                     } else {
                         System.out.println("Сначала считайте месячные отчеты");
                     }
                     break;
+
                 case 5 :
                     if (isYearlyReportInit) {
-                        yearlyReport.yearlyReportWriter();
+
+                        HashMap<Integer, Integer> profitByMonth = yearlyReport.yearlyReportWriter();
+                        for (int i = 0; i < profitByMonth.size(); i++) {
+                            System.out.println("Прибыль за " + yearlyReport.monthsNames[i] + " составила: " + profitByMonth.get(i + 1));
+                        }
+                        System.out.println("Средний доход: " + yearlyReport.averageIncome());
+                        System.out.println("Средний расход: " + yearlyReport.averageExpense());
+
                     } else {
                         System.out.println("Сначала считайте годовой отчет");
                     }
                     break;
+
                 case 0 :
                     System.out.println("Выход из программы");
                     break;
+
                 default:
                     System.out.println("Выбраная команда не существует");
                     break;

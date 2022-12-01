@@ -6,7 +6,7 @@ import java.util.*;
 public class YearlyReport {
 
 
-    ArrayList<String[]> yearlyReportList = new ArrayList<>();
+    ArrayList<YearlyRecord> yearlyReportList = new ArrayList<>();
     String[] monthsNames = {"Январь", "Февраль", "Март", "Апрель",
             "Май", "Июнь", "Июль", "Август",
             "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"};
@@ -24,43 +24,53 @@ public class YearlyReport {
         ArrayList<String> reportList;
         String path = "./resources/y.2021.csv";
         reportList = (ArrayList<String>) readFileContents(path);
-        for (String list : reportList) {
-            yearlyReportList.add(list.split(","));
+        for (int i = 1; i < reportList.size(); i ++) {
+            YearlyRecord record = new YearlyRecord(reportList.get(i).split(","));
+            yearlyReportList.add(record);
         }
-        System.out.println("Годовой отчет успешно считан");
     }
 
-    void yearlyReportWriter() {
+    HashMap<Integer,Integer> yearlyReportWriter() {
 
-        int monthCount = 0;
         int sumOfIncome = 0;
-        int sumOfExpense = 0;
-        HashMap<String, Integer> profitByMonth = new HashMap<>();
 
-        for (int i = 1; i < yearlyReportList.size(); i++) {
-            monthCount++;
-            String[] yearlyReport = yearlyReportList.get(i);
+        HashMap<Integer, Integer> profitByMonth = new HashMap<>();
 
-            if (!profitByMonth.containsKey(yearlyReport[0])) {
-                profitByMonth.put(yearlyReport[0], 0);
+        for (YearlyRecord year : yearlyReportList) {
+            if (!profitByMonth.containsKey(year.month)) {
+                profitByMonth.put(year.month, 0);
             }
 
-            if (Boolean.parseBoolean(yearlyReport[2])) {
-                profitByMonth.put(yearlyReport[0], profitByMonth.get(yearlyReport[0]) - Integer.parseInt(yearlyReport[1]));
-                sumOfExpense += Integer.parseInt(yearlyReport[1]);
+            if (year.isExpense) {
+                profitByMonth.put(year.month, profitByMonth.get(year.month) - year.amount);
             } else {
-                profitByMonth.put(yearlyReport[0], profitByMonth.get(yearlyReport[0]) + Integer.parseInt(yearlyReport[1]));
-                sumOfIncome += Integer.parseInt(yearlyReport[1]);
+                profitByMonth.put(year.month, profitByMonth.get(year.month) + year.amount);
             }
-
         }
+        return profitByMonth;
+    }
 
-        for (int i = 1; i < profitByMonth.size() + 1; i++) {
-            System.out.println("Прибыль за " + monthsNames[i - 1] + " составила: " + profitByMonth.get("0" + i));
+    int averageExpense() {
+        int sumOfExpense = 0;
+
+        for (YearlyRecord year : yearlyReportList) {
+
+            if (year.isExpense) {
+                sumOfExpense += year.amount;
+            }
         }
+        return sumOfExpense/yearlyReportList.size();
+    }
 
-        System.out.println("Средний доход: " + (sumOfIncome / monthCount));
-        System.out.println("Средний расход: " + (sumOfExpense / monthCount));
+    int averageIncome() {
+        int sumOfIncome = 0;
+        for (YearlyRecord year : yearlyReportList) {
+
+            if (!year.isExpense) {
+                sumOfIncome += year.amount;
+            }
+        }
+        return sumOfIncome/yearlyReportList.size();
     }
 
 
