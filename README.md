@@ -1,2 +1,2 @@
-# java-sprint2-hw
-Second sprint homework
+# Accounting application
+Бухгалтерское приложение с возможностью загружать отчеты из CSV файлов. Также можно сверять годовые и месячные отчеты.
